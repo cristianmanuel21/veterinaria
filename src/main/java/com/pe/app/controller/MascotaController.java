@@ -1,16 +1,17 @@
 package com.pe.app.controller;
 
+import java.net.URI;
 import java.util.Optional;
 
+import com.pe.app.services.AnimalService;
+import com.pe.app.services.ChipService;
+import com.pe.app.services.DuenoService;
+import com.pe.app.services.MascotaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.pe.app.model.Animal;
 import com.pe.app.model.Chip;
@@ -20,55 +21,63 @@ import com.pe.app.repository.AnimalRepository;
 import com.pe.app.repository.ChipRepository;
 import com.pe.app.repository.DuenoRepository;
 import com.pe.app.repository.MascotaRepository;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/mascota")
 public class MascotaController {
-	
-	
+
 	@Autowired
-	private MascotaRepository mascotaRepository;
-	
+	private MascotaService mascotaService;
+
 	@Autowired
-	private ChipRepository chipRepository;
-	
+	private DuenoService duenoService;
+
 	@Autowired
-	private DuenoRepository duenoRepository;
-	
+	private ChipService chipService;
+
 	@Autowired
-	private AnimalRepository animalRepository;
-	
-	
+	private AnimalService animalService;
+
+	@GetMapping
+	public ResponseEntity<?> getAll(){
+		return new ResponseEntity<>(mascotaService.getAll(),HttpStatus.OK);
+	}
+
 	@GetMapping("/{id}")
 	public ResponseEntity<Mascota> getMascota(@PathVariable(name="id") Long id){
-		Optional<Mascota> mascota = mascotaRepository.findById(id);
-		if(!mascota.isPresent()) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-		return new ResponseEntity<>(mascota.get(),HttpStatus.OK);
+		Mascota mascota = mascotaService.getById(id);
+		return new ResponseEntity<>(mascota,HttpStatus.OK);
 	}
-	
-	
+
 	@PostMapping("/animal/{animalId}/chip/{chipId}/dueno/{duenoId}")
-	public ResponseEntity<Mascota> saveChip(@RequestBody Mascota mascota,@PathVariable("animalId") Long animalId,
-			@PathVariable("chipId") Long chipId,@PathVariable("duenoId") Long duenoId){
-		Optional<Animal> animalOp=animalRepository.findById(animalId);
-		Optional<Chip> chipOp=chipRepository.findById(chipId);
-		Optional<Dueno> duenoOp=duenoRepository.findById(duenoId);
-		if(animalOp.isEmpty() && chipOp.isEmpty() && duenoOp.isEmpty()) {
+	public ResponseEntity<Mascota> saveMascota(@Valid @RequestBody Mascota mascota, @PathVariable("animalId") Long animalId,
+											   @PathVariable("chipId") Long chipId, @PathVariable("duenoId") Long duenoId){
+		Animal animalOp=animalService.getById(animalId);
+		Chip chipOp=chipService.getById(chipId);
+		Dueno duenoOp=duenoService.getById(duenoId);
+		if(animalOp==null && chipOp==null && duenoOp==null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		Mascota newMascota;
-		mascota.setAnimal(animalOp.get());
-		mascota.setChip(chipOp.get());
-		mascota.setDueno(duenoOp.get());
-		newMascota=mascotaRepository.save(mascota);
-		
-		return new ResponseEntity<>(newMascota,HttpStatus.CREATED);
+		mascota.setAnimal(animalOp);
+		mascota.setChip(chipOp);
+		mascota.setDueno(duenoOp);
+		newMascota=mascotaService.save(mascota);
+		HttpHeaders responseHeaders = new HttpHeaders();
+		URI newCacheUri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(newMascota.getId())
+				.toUri();
+		responseHeaders.setLocation(newCacheUri);
+		return new ResponseEntity<>(newMascota,responseHeaders,HttpStatus.CREATED);
 	}
-	
-	
-	
-	
+
+	@PutMapping("/{id}")
+	public ResponseEntity<Mascota> updateChip(@RequestBody Mascota mascota, @PathVariable(name="id") Long id){
+		Mascota newMascota = mascotaService.getById(id);
+		if(mascota.getNombre()!=null && !mascota.getNombre().isEmpty()) newMascota.setNombre(mascota.getNombre());
+		return new ResponseEntity<>(newMascota, HttpStatus.CREATED);
+	}
 
 }

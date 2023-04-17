@@ -6,6 +6,8 @@ import static org.hamcrest.Matchers.*;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.pe.app.controller.ChipController;
+import com.pe.app.services.*;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -34,19 +36,19 @@ import com.pe.app.repository.VeterinariaRepository;
 class VetPetApplicationTests {
 	
 	@Autowired
-	private MascotaRepository mascotaRepository;
+	private MascotaService mascotaService;
 	
 	@Autowired
-	private ChipRepository chipRepository;
+	private ChipService chipService;
 	
 	@Autowired
-	private DuenoRepository duenoRepository;
+	private DuenoService duenoService;
 	
 	@Autowired
-	private AnimalRepository animalRepository;
+	private AnimalService animalService;
 	
 	@Autowired
-	private VeterinariaRepository veterinariaRepository;
+	private VeterinariaService veterinariaService;
 	
 	
 	@Autowired
@@ -162,9 +164,9 @@ class VetPetApplicationTests {
 	@Order(5)
 	void saveMascota() {
 		//given
-		Chip chip=chipRepository.findById(1L).get();
-		Animal animal=animalRepository.findById(1L).get();
-		Dueno dueno=duenoRepository.findById(1L).get();
+		Chip chip=chipService.getById(1L);
+		Animal animal=animalService.getById(1L);
+		Dueno dueno=duenoService.getById(1L);
 		Mascota mascota=new Mascota();
 		mascota.setNombre("Peluchin");
 		mascota.setEdad(11);
@@ -221,8 +223,8 @@ class VetPetApplicationTests {
 	@Order(7)
 	void saveFavourites() {
 		//given
-		Veterinaria vet=veterinariaRepository.findById(1L).get();
-		Dueno dueno=duenoRepository.findById(1L).get();
+		Veterinaria vet=veterinariaService.getById(1L);
+		Dueno dueno=duenoService.getById(1L);
 		DuenoVeterinaria duenoVet=new DuenoVeterinaria();
 		duenoVet.setCreated_at(LocalDate.now());
 		duenoVet.setDueno(dueno);
@@ -231,7 +233,7 @@ class VetPetApplicationTests {
 		//when
 		client.post().uri("/duenoveterinaria/dueno/{duenoId}/veterinaria/{veterinariaId}",dueno.getId(), vet.getId())
 		.contentType(MediaType.APPLICATION_JSON)
-		.bodyValue(vet)
+		.bodyValue(duenoVet)
 		.exchange()
 		//then
 		.expectStatus().isCreated()
@@ -250,8 +252,8 @@ class VetPetApplicationTests {
 	@Order(8)
 	void saveFavourites2() {
 		//given
-		Veterinaria vet=veterinariaRepository.findById(1L).get();
-		Dueno dueno=duenoRepository.findById(2L).get();
+		Veterinaria vet=veterinariaService.getById(1L);
+		Dueno dueno=duenoService.getById(2L);
 		DuenoVeterinaria duenoVet=new DuenoVeterinaria();
 		duenoVet.setCreated_at(LocalDate.now());
 		duenoVet.setDueno(dueno);
@@ -260,7 +262,7 @@ class VetPetApplicationTests {
 		//when
 		client.post().uri("/duenoveterinaria/dueno/{duenoId}/veterinaria/{veterinariaId}",dueno.getId(), vet.getId())
 		.contentType(MediaType.APPLICATION_JSON)
-		.bodyValue(vet)
+		.bodyValue(duenoVet)
 		.exchange()
 		//then
 		.expectStatus().isCreated()
@@ -279,10 +281,10 @@ class VetPetApplicationTests {
 	@Order(9)
 	void enviarCorreo() {
 		//given
-		Veterinaria vet=veterinariaRepository.findById(1L).get();
+		Veterinaria vet=veterinariaService.getById(1L);
 		
 		//when
-		client.get().uri("/duenoveterinaria/email/veterinaria/{veterinariaName}", vet.getNombre())
+		client.get().uri("/duenoveterinaria/email/veterinaria/{id}", vet.getId())
 		.exchange()
 		.expectStatus().isOk()
 		.expectHeader().contentType(MediaType.APPLICATION_JSON)

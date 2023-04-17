@@ -22,6 +22,7 @@ public class Mascota {
 	private Long id;
 	private String nombre;
 	private int edad;
+
 	
 
 	@OneToOne(fetch = FetchType.LAZY, optional = false)
