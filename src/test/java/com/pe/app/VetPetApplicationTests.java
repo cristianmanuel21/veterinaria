@@ -5,31 +5,23 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.hamcrest.Matchers.*;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 import com.pe.app.controller.ChipController;
+import com.pe.app.model.*;
+import com.pe.app.repository.*;
+import com.pe.app.security.payload.request.LoginRequest;
+import com.pe.app.security.payload.request.SignupRequest;
+import com.pe.app.security.payload.response.JwtResponse;
+import com.pe.app.security.payload.response.MessageResponse;
 import com.pe.app.services.*;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.event.annotation.BeforeTestClass;
 import org.springframework.test.web.reactive.server.WebTestClient;
-
-
-
-import com.pe.app.model.Animal;
-import com.pe.app.model.Chip;
-import com.pe.app.model.Dueno;
-import com.pe.app.model.DuenoVeterinaria;
-import com.pe.app.model.Mascota;
-import com.pe.app.model.Veterinaria;
-import com.pe.app.repository.AnimalRepository;
-import com.pe.app.repository.ChipRepository;
-import com.pe.app.repository.DuenoRepository;
-import com.pe.app.repository.MascotaRepository;
-import com.pe.app.repository.VeterinariaRepository;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -49,6 +41,11 @@ class VetPetApplicationTests {
 	
 	@Autowired
 	private VeterinariaService veterinariaService;
+
+	@Autowired
+	RoleRepository roleRepository;
+
+	static String token=" ";
 	
 	
 	@Autowired
@@ -56,6 +53,67 @@ class VetPetApplicationTests {
 
 	@Test
 	@Order(1)
+	void saveRole() {
+		Role role_user=new Role(ERole.ROLE_USER);
+		Role role_admin=new Role(ERole.ROLE_ADMIN);
+		Role role_mod=new Role(ERole.ROLE_MODERATOR);
+		List<Role> roles=List.of(role_mod,role_admin,role_user);
+		roleRepository.saveAll(roles);
+	}
+
+	@Test
+	@Order(2)
+	void saveUser(){
+		SignupRequest s=new SignupRequest();
+		s.setEmail("cristianmanuel.25@gmail.com");
+		s.setUsername("cristian777");
+		s.setPassword("peru1234");
+		s.setRole(Set.of("admin"));
+		//when
+		client.post().uri("/api/auth/signup")
+				.contentType(MediaType.APPLICATION_JSON)
+				.bodyValue(s)
+				.exchange()
+				//then
+				.expectStatus().isOk()
+				.expectHeader().contentType(MediaType.APPLICATION_JSON)
+				.expectBody(MessageResponse.class)
+				.consumeWith(response->{
+					MessageResponse si=response.getResponseBody();
+					assertNotNull(si);
+					assertEquals(si.getMessage(),"User registered successfully!");
+				});
+	}
+
+	@Test
+	@Order(3)
+	void createToken(){
+		LoginRequest l=new LoginRequest();
+		l.setUsername("cristian777");
+		l.setPassword("peru1234");
+		//when
+		client.post().uri("/api/auth/signin")
+				.contentType(MediaType.APPLICATION_JSON)
+				.bodyValue(l)
+				.exchange()
+				//then
+				.expectStatus().isOk()
+				.expectHeader().contentType(MediaType.APPLICATION_JSON)
+				.expectBody(JwtResponse.class)
+				.consumeWith(response->{
+					JwtResponse jwt=response.getResponseBody();
+					assertNotNull(jwt);
+					assertEquals(jwt.getUsername(),"cristian777");
+					token=jwt.getAccessToken();
+
+				});
+		//System.out.println("El JWT es "+token);
+
+	}
+
+
+	@Test
+	@Order(4)
 	void saveChip() {
 		//given
 				Chip chip=new Chip();
@@ -65,6 +123,7 @@ class VetPetApplicationTests {
 				client.post().uri("/chip")
 				.contentType(MediaType.APPLICATION_JSON)
 				.bodyValue(chip)
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
 				.exchange()
 				//then
 				.expectStatus().isCreated()
@@ -79,7 +138,7 @@ class VetPetApplicationTests {
 	
 	
 	@Test
-	@Order(2)
+	@Order(5)
 	void saveAnimal() {
 		//given
 				Animal animal=new Animal();
@@ -89,6 +148,7 @@ class VetPetApplicationTests {
 				client.post().uri("/animal")
 				.contentType(MediaType.APPLICATION_JSON)
 				.bodyValue(animal)
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
 				.exchange()
 				//then
 				.expectStatus().isCreated()
@@ -103,7 +163,7 @@ class VetPetApplicationTests {
 	
 	
 	@Test
-	@Order(3)
+	@Order(6)
 	void saveDueno() {
 		//given
 				Dueno dueno=new Dueno();
@@ -119,6 +179,7 @@ class VetPetApplicationTests {
 				client.post().uri("/dueno")
 				.contentType(MediaType.APPLICATION_JSON)
 				.bodyValue(dueno)
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
 				.exchange()
 				//then
 				.expectStatus().isCreated()
@@ -132,7 +193,7 @@ class VetPetApplicationTests {
 	}
 	
 	@Test
-	@Order(4)
+	@Order(7)
 	void saveDueno2() {
 		//given
 				Dueno dueno=new Dueno();
@@ -148,6 +209,7 @@ class VetPetApplicationTests {
 				client.post().uri("/dueno")
 				.contentType(MediaType.APPLICATION_JSON)
 				.bodyValue(dueno)
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
 				.exchange()
 				//then
 				.expectStatus().isCreated()
@@ -161,7 +223,7 @@ class VetPetApplicationTests {
 	}
 	
 	@Test
-	@Order(5)
+	@Order(8)
 	void saveMascota() {
 		//given
 		Chip chip=chipService.getById(1L);
@@ -178,6 +240,7 @@ class VetPetApplicationTests {
 		client.post().uri("/mascota/animal/{animalId}/chip/{chipId}/dueno/{duenoId}",animal.getId(),chip.getId(),dueno.getId())
 		.contentType(MediaType.APPLICATION_JSON)
 		.bodyValue(mascota)
+		.header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
 		.exchange()
 		//then
 		.expectStatus().isCreated()
@@ -193,7 +256,7 @@ class VetPetApplicationTests {
 	
 	
 	@Test
-	@Order(6)
+	@Order(9)
 	void saveVeterinario() {
 		//given
 			    Veterinaria vet=new Veterinaria();
@@ -204,6 +267,7 @@ class VetPetApplicationTests {
 				client.post().uri("/veterinaria")
 				.contentType(MediaType.APPLICATION_JSON)
 				.bodyValue(vet)
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
 				.exchange()
 				//then
 				.expectStatus().isCreated()
@@ -220,7 +284,7 @@ class VetPetApplicationTests {
 	
 	
 	@Test
-	@Order(7)
+	@Order(10)
 	void saveFavourites() {
 		//given
 		Veterinaria vet=veterinariaService.getById(1L);
@@ -233,6 +297,7 @@ class VetPetApplicationTests {
 		//when
 		client.post().uri("/duenoveterinaria/dueno/{duenoId}/veterinaria/{veterinariaId}",dueno.getId(), vet.getId())
 		.contentType(MediaType.APPLICATION_JSON)
+		.header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
 		.bodyValue(duenoVet)
 		.exchange()
 		//then
@@ -249,7 +314,7 @@ class VetPetApplicationTests {
 	
 	
 	@Test
-	@Order(8)
+	@Order(11)
 	void saveFavourites2() {
 		//given
 		Veterinaria vet=veterinariaService.getById(1L);
@@ -262,6 +327,7 @@ class VetPetApplicationTests {
 		//when
 		client.post().uri("/duenoveterinaria/dueno/{duenoId}/veterinaria/{veterinariaId}",dueno.getId(), vet.getId())
 		.contentType(MediaType.APPLICATION_JSON)
+		.header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
 		.bodyValue(duenoVet)
 		.exchange()
 		//then
@@ -278,13 +344,14 @@ class VetPetApplicationTests {
 	
 	
 	@Test
-	@Order(9)
+	@Order(12)
 	void enviarCorreo() {
 		//given
 		Veterinaria vet=veterinariaService.getById(1L);
 		
 		//when
 		client.get().uri("/duenoveterinaria/email/veterinaria/{id}", vet.getId())
+		.header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
 		.exchange()
 		.expectStatus().isOk()
 		.expectHeader().contentType(MediaType.APPLICATION_JSON)

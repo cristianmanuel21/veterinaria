@@ -1,6 +1,9 @@
 package com.pe.app.security.payload.response;
 
 public class MessageResponse {
+
+  public MessageResponse(){}
+
   private String message;
 
   public MessageResponse(String message) {

@@ -17,7 +17,7 @@ public interface DuenoVeterinariaRepository extends JpaRepository<DuenoVeterinar
 	 * */
 	
 	
-	@Query(value="select dueno_id from dueno_veterinarias f where  f.veterinaria_id=:vetId",nativeQuery=true)
+	@Query(value="select dueno_id from duenoveterinarias f where  f.veterinaria_id=:vetId",nativeQuery=true)
 	public List<Long>findDuenosBytVetId(@Param("vetId")Long vetId);
 	
 

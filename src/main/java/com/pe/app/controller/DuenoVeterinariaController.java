@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import com.pe.app.services.DuenoService;
 import com.pe.app.services.DuenoVeterinariaService;
+import com.pe.app.services.EmailService;
 import com.pe.app.services.VeterinariaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,7 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.pe.app.model.Dueno;
 import com.pe.app.model.DuenoVeterinaria;
 import com.pe.app.model.Veterinaria;
-import com.pe.app.repository.DuenoVeterinariaRepository;
+
+
+import javax.mail.MessagingException;
 
 
 @RestController
@@ -31,6 +34,9 @@ public class DuenoVeterinariaController {
 	
 	@Autowired
 	private DuenoService duenoService;
+
+	@Autowired
+	private EmailService emailService;
 	
 	
 	@PostMapping("/dueno/{duenoId}/veterinaria/{veterinariaId}")
@@ -53,7 +59,7 @@ public class DuenoVeterinariaController {
 	
 	
 	@GetMapping("/email/veterinaria/{id}")
-	public ResponseEntity<?> enviarCorreo(@PathVariable(name="id") Long id){
+	public ResponseEntity<?> enviarCorreo(@PathVariable(name="id") Long id) throws MessagingException {
 		//Veterinaria vet=veterinariaRepository.findByNombre(id);
 		Veterinaria vet=veterinariaService.getById(id);
 		if(vet==null) {
@@ -66,7 +72,8 @@ public class DuenoVeterinariaController {
 		
 		List<Dueno> duenos = duenoService.getAllDuenosById(duenosId);
 		for(Dueno dueno: duenos) {
-			enviarEmail(dueno);
+			emailService.sendSimpleMessage(dueno.getCorreo(),"Estimado(a) "+dueno.getNombre());
+			//enviarEmail(dueno);
 		}
 		return ResponseEntity.ok(duenos);	
 	} 
