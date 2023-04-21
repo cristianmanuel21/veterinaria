@@ -1,8 +1,6 @@
 package com.pe.app.controller;
 
 import java.net.URI;
-import java.util.Optional;
-
 import com.pe.app.services.AnimalService;
 import com.pe.app.services.ChipService;
 import com.pe.app.services.DuenoService;
@@ -17,10 +15,6 @@ import com.pe.app.model.Animal;
 import com.pe.app.model.Chip;
 import com.pe.app.model.Dueno;
 import com.pe.app.model.Mascota;
-import com.pe.app.repository.AnimalRepository;
-import com.pe.app.repository.ChipRepository;
-import com.pe.app.repository.DuenoRepository;
-import com.pe.app.repository.MascotaRepository;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
@@ -74,10 +68,10 @@ public class MascotaController {
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<Mascota> updateChip(@RequestBody Mascota mascota, @PathVariable(name="id") Long id){
+	public ResponseEntity<Mascota> updateMascota(@RequestBody Mascota mascota, @PathVariable(name="id") Long id){
 		Mascota newMascota = mascotaService.getById(id);
 		if(mascota.getNombre()!=null && !mascota.getNombre().isEmpty()) newMascota.setNombre(mascota.getNombre());
-		return new ResponseEntity<>(newMascota, HttpStatus.CREATED);
+		return new ResponseEntity<>(mascotaService.save(newMascota), HttpStatus.CREATED);
 	}
 
 }

@@ -1,7 +1,6 @@
 package com.pe.app.controller;
 
 import java.net.URI;
-
 import com.pe.app.services.VeterinariaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -10,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.pe.app.model.Veterinaria;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import javax.validation.Valid;
 
 @RestController
@@ -47,7 +45,7 @@ public class VeterinariaController {
 		Veterinaria newVeterinaria=veterinariaService.getById(id);
 		if(veterinaria.getDireccion()!=null && !veterinaria.getDireccion().isEmpty()) newVeterinaria.setNombre(veterinaria.getNombre());
 		if(veterinaria.getTelefono()!=null && !veterinaria.getTelefono().isEmpty()) newVeterinaria.setTelefono(veterinaria.getTelefono());
-		return new ResponseEntity<>(newVeterinaria, HttpStatus.CREATED);
+		return new ResponseEntity<>(veterinariaService.save(newVeterinaria), HttpStatus.CREATED);
 	}
 
 

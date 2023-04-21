@@ -2,7 +2,6 @@ package com.pe.app.controller;
 
 import java.net.URI;
 
-import com.pe.app.model.Chip;
 import com.pe.app.services.AnimalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -43,14 +42,14 @@ public class AnimalController {
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<Animal> updateChip(@RequestBody Animal animal, @PathVariable(name="id") Long id){
+	public ResponseEntity<Animal> updateAnimal(@RequestBody Animal animal, @PathVariable(name="id") Long id){
 		Animal newAnimal = animalService.getById(id);
 		if(animal.getNombre()!=null && !animal.getNombre().isEmpty()) newAnimal.setNombre(animal.getNombre());
-		return new ResponseEntity<>(newAnimal, HttpStatus.CREATED);
+		return new ResponseEntity<>(animalService.save(newAnimal), HttpStatus.CREATED);
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deleteChip(Long id){
+	public ResponseEntity<Void> deleteAnimal(Long id){
 		animalService.deleteById(id);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}

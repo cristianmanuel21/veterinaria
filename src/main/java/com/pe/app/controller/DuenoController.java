@@ -24,13 +24,13 @@ public class DuenoController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<Dueno> getAnimal(@PathVariable(name="id") Long id){
+	public ResponseEntity<Dueno> getDueno(@PathVariable(name="id") Long id){
 		Dueno dueno = duenoService.getById(id);
 		return new ResponseEntity<>(dueno,HttpStatus.OK);
 	}
 
 	@PostMapping
-	public ResponseEntity<Dueno> saveAnimal(@Valid @RequestBody Dueno dueno){
+	public ResponseEntity<Dueno> saveDueno(@Valid @RequestBody Dueno dueno){
 		Dueno newDueno=duenoService.save(dueno);
 		HttpHeaders responseHeaders = new HttpHeaders();
 		URI newCacheUri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(newDueno.getId())
@@ -40,17 +40,17 @@ public class DuenoController {
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<Dueno> updateChip(@RequestBody Dueno dueno, @PathVariable(name="id") Long id){
+	public ResponseEntity<Dueno> updateDueno(@RequestBody Dueno dueno, @PathVariable(name="id") Long id){
 		Dueno newDueno = duenoService.getById(id);
 		if(dueno.getCelular()!=null && !dueno.getCelular().isEmpty()) newDueno.setCelular(dueno.getCelular());
 		if(dueno.getDireccion()!=null && !dueno.getDireccion().isEmpty()) newDueno.setDireccion(dueno.getDireccion());
 		if(dueno.getCorreo()!=null && !dueno.getCorreo().isEmpty()) newDueno.setCorreo(dueno.getCorreo());
 		if(dueno.getTelefono()!=null && !dueno.getTelefono().isEmpty()) newDueno.setTelefono(dueno.getTelefono());
-		return new ResponseEntity<>(newDueno, HttpStatus.CREATED);
+		return new ResponseEntity<>(duenoService.save(newDueno), HttpStatus.CREATED);
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deleteChip(Long id){
+	public ResponseEntity<Void> deleteDueno(Long id){
 		duenoService.deleteDueno(id);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}

@@ -34,7 +34,8 @@ public class ChipController {
 	public ResponseEntity<Chip> updateChip(@RequestBody Chip chip,@PathVariable(name="id") Long id){
 		Chip newChip = chipService.getById(id);
 		if(chip.getMarca()!=null && !chip.getMarca().isEmpty()) newChip.setMarca(chip.getMarca());
-		return new ResponseEntity<>(newChip, HttpStatus.CREATED);
+		if(chip.getDescripcion()!=null && !chip.getDescripcion().isEmpty()) newChip.setDescripcion(chip.getDescripcion());
+		return new ResponseEntity<>(chipService.save(newChip), HttpStatus.CREATED);
 	}
 
 

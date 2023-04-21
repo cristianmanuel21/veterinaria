@@ -6,6 +6,7 @@ import com.pe.app.repository.ChipRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
 import java.util.List;
 import java.util.Optional;
 
@@ -21,7 +22,7 @@ public class ChipServiceImpl implements ChipService {
     }
 
     @Override
-    public Chip getById(Long id){
+     public Chip getById(Long id){
         Optional<Chip> chip = chipRepository.findById(id);
         if (chip.isEmpty()) {
             // return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -31,7 +32,7 @@ public class ChipServiceImpl implements ChipService {
     }
 
     @Override
-    public Chip save(Chip chip){
+     public Chip save(Chip chip){
       return chipRepository.save(chip);
     }
 

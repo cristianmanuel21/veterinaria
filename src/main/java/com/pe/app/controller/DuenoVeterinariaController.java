@@ -72,8 +72,8 @@ public class DuenoVeterinariaController {
 		
 		List<Dueno> duenos = duenoService.getAllDuenosById(duenosId);
 		for(Dueno dueno: duenos) {
-			emailService.sendSimpleMessage(dueno.getCorreo(),"Estimado(a) "+dueno.getNombre());
-			//enviarEmail(dueno);
+			//emailService.sendSimpleMessage(dueno.getCorreo(),"Estimado(a) "+dueno.getNombre());
+			enviarEmail(dueno);
 		}
 		return ResponseEntity.ok(duenos);	
 	} 

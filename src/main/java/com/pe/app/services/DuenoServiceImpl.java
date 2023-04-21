@@ -6,6 +6,7 @@ import com.pe.app.repository.DuenoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +31,7 @@ public class DuenoServiceImpl implements DuenoService {
     }
 
     @Override
-    public Dueno save(Dueno dueno){
+      public Dueno save(Dueno dueno){
         return duenoRepository.save(dueno);
     }
 

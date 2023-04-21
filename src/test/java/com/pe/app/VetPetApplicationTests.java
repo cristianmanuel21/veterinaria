@@ -2,12 +2,9 @@ package com.pe.app;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.hamcrest.Matchers.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
-
-import com.pe.app.controller.ChipController;
 import com.pe.app.model.*;
 import com.pe.app.repository.*;
 import com.pe.app.security.payload.request.LoginRequest;
@@ -20,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.event.annotation.BeforeTestClass;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -135,10 +131,34 @@ class VetPetApplicationTests {
 					assertEquals(aut.getMarca(), "SONY");
 				});
 	}
+
+	@Test
+	@Order(5)
+	void UpdateChip() {
+		//given
+		Chip chip=chipService.getById(1L);
+		chip.setDescripcion("Chip Sony experimental 2");
+
+		//when
+		client.put().uri("/chip/{id}",chip.getId())
+				.contentType(MediaType.APPLICATION_JSON)
+				.bodyValue(chip)
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+				.exchange()
+				//then
+				.expectStatus().isCreated()
+				.expectHeader().contentType(MediaType.APPLICATION_JSON)
+				.expectBody(Chip.class)
+				.consumeWith(response->{
+					Chip aut=response.getResponseBody();
+					assertNotNull(aut);
+					assertEquals(aut.getDescripcion(), "Chip Sony experimental 2");
+				});
+	}
 	
 	
 	@Test
-	@Order(5)
+	@Order(6)
 	void saveAnimal() {
 		//given
 				Animal animal=new Animal();
@@ -163,7 +183,7 @@ class VetPetApplicationTests {
 	
 	
 	@Test
-	@Order(6)
+	@Order(7)
 	void saveDueno() {
 		//given
 				Dueno dueno=new Dueno();
@@ -193,7 +213,7 @@ class VetPetApplicationTests {
 	}
 	
 	@Test
-	@Order(7)
+	@Order(8)
 	void saveDueno2() {
 		//given
 				Dueno dueno=new Dueno();
@@ -223,7 +243,7 @@ class VetPetApplicationTests {
 	}
 	
 	@Test
-	@Order(8)
+	@Order(9)
 	void saveMascota() {
 		//given
 		Chip chip=chipService.getById(1L);
@@ -256,7 +276,7 @@ class VetPetApplicationTests {
 	
 	
 	@Test
-	@Order(9)
+	@Order(10)
 	void saveVeterinario() {
 		//given
 			    Veterinaria vet=new Veterinaria();
@@ -284,7 +304,7 @@ class VetPetApplicationTests {
 	
 	
 	@Test
-	@Order(10)
+	@Order(11)
 	void saveFavourites() {
 		//given
 		Veterinaria vet=veterinariaService.getById(1L);
@@ -314,7 +334,7 @@ class VetPetApplicationTests {
 	
 	
 	@Test
-	@Order(11)
+	@Order(12)
 	void saveFavourites2() {
 		//given
 		Veterinaria vet=veterinariaService.getById(1L);
@@ -344,7 +364,7 @@ class VetPetApplicationTests {
 	
 	
 	@Test
-	@Order(12)
+	@Order(13)
 	void enviarCorreo() {
 		//given
 		Veterinaria vet=veterinariaService.getById(1L);
